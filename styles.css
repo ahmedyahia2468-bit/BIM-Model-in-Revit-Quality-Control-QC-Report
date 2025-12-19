@@ -1,0 +1,418 @@
+/* === إعدادات عامة === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0f0f1e;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #0f0f1e;
+    /* الخلفية السوداء الرئيسية */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+}
+
+/* === العنوان === */
+h1 {
+    text-align: center;
+    color: #00d4ff;
+    margin-bottom: 15px;
+    font-size: 2.2em;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+h1:first-of-type {
+    margin-top: 10px;
+}
+
+.welcome-text {
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+}
+
+.hand-emoji {
+    font-size: 1.5em;
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* === رفع الملف === */
+.upload-section {
+    text-align: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: #282846;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+label[for="file-upload"] {
+    display: inline-block;
+    padding: 12px 60px;
+    background: #00d4ff;
+    color: #000;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+label[for="file-upload"]:hover {
+    background: #00b8d4;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+}
+
+#file-upload {
+    display: none;
+}
+
+#file-status {
+    display: block;
+    margin: 12px 0;
+    color: #4ade80;
+    font-weight: bold;
+    font-size: 1.05em;
+}
+
+/* === الأزرار === */
+.run-btn {
+    padding: 14px 40px;
+    background: #4ade80;
+    color: #000;
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1em;
+    min-width: 220px;
+}
+
+.run-btn:hover:not(:disabled) {
+    background: #22c55e;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+}
+
+.run-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.7;
+}
+
+/* === قسم إدخال المرجع === */
+.input-section {
+    margin-top: 30px;
+    padding: 25px;
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.reference-row {
+    margin-bottom: 12px;
+}
+
+.reference-row input {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #1e293b;
+    color: white;
+    font-size: 1em;
+}
+
+.reference-row button {
+    padding: 10px 15px;
+    font-size: 0.9em;
+}
+
+/* === الفوتر === */
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #666;
+    font-size: 1.2em;
+    padding: 15px 0;
+    border-top: 1px solid #333;
+}
+
+/* === Result Report === */
+#result-container {
+    background: #1a1a2e;
+    padding: 25px;
+    border-radius: 15px;
+    margin: 40px 0;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+#qa-results {
+    background: #16213e;
+    padding: 20px;
+    border-radius: 12px;
+    color: #ffca00;
+    line-height: 2.2;
+    font-size: 1.15em;
+    font-weight: 500;
+}
+
+/* === أنيميشن سلس === */
+.animated-section {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.animated-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* === Project Summary Cards === */
+.summary-section h2,
+.matrix-section h2 {
+    color: #00d4ff;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1.9em;
+    text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin: 25px 0;
+}
+
+/* === الكروت === */
+.card {
+    background: #1a1a2e;
+    padding: 22px 15px;
+    border-radius: 15px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    border-left: 6px solid;
+    min-height: 115px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.card:hover::before {
+    transform: translateX(100%);
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 30px rgba(0, 212, 255, 0.25);
+}
+
+.card span {
+    display: block;
+    font-size: 2.2em;
+    margin-bottom: 8px;
+    color: #00d4ff;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+}
+
+/* === ألوان الكروت === */
+.card.cyan {
+    border-left-color: #06b6d4;
+}
+
+.card.green {
+    border-left-color: #50c878;
+}
+
+.card.red {
+    border-left-color: #ef4444;
+}
+
+.card.blue {
+    border-left-color: #3b82f6;
+}
+
+.card.yellow {
+    border-left-color: #facc15;
+}
+
+.card.orange {
+    border-left-color: #f97316;
+}
+
+.card.teal {
+    border-left-color: #14b8a6;
+}
+
+.card.purple {
+    border-left-color: #a855f7;
+}
+
+/* === الجدول === */
+.table-container {
+    margin-top: 30px;
+    overflow-x: auto;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    background: #1a1a2e;
+}
+
+#clash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+}
+
+#clash-table th {
+    background: #00d4ff;
+    color: #000;
+    padding: 16px 12px;
+    text-align: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 0.5px;
+}
+
+#clash-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #333;
+    vertical-align: middle;
+}
+
+#clash-table tbody tr:hover {
+    background: #16213e;
+    transition: background 0.3s ease;
+}
+
+#clash-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* === ألوان الأخطاء === */
+.error-material {
+    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+    color: white !important;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+.error-firerating {
+    background: linear-gradient(135deg, #ea580c, #fb923c) !important;
+    color: white !important;
+    font-weight: 600;
+    border-left: 5px solid #c2410c;
+}
+
+.missing-firerating {
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    font-weight: 600;
+    border-left: 5px solid #1e3a8a;
+}
+
+.missing-firerating small,
+.error-firerating small {
+    color: #fecaca !important;
+    font-weight: bold;
+}
+
+.correct-firerating {
+    background: linear-gradient(135deg, #10b981, #34d399) !important;
+    color: white !important;
+    font-weight: bold;
+    border-left: 6px solid #059669;
+}
+
+/* نبضة خفيفة */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.92;
+    }
+}
+
+/* === متجاوب === */
+@media (max-width: 992px) {
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    h1 {
+        font-size: 1.9em;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    .run-btn {
+        padding: 12px 30px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 600px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 1.7em;
+    }
+
+    .upload-section {
+        padding: 15px;
+    }
+}
+
+/* ضمان رسم الخلفية السوداء في الـ PDF */
+.container,
+body {
+    background-color: #0f0f1e !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}

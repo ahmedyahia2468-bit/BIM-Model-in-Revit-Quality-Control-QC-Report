@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIM Model in Revit – Quality Control (QC) Report</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- مكتبات خارجية -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <h1>🚀🚀BIM Technology</h1>
+        <h1>BIM Model in Revit – Quality Control (QC) Report</h1>
+        <div class="welcome-text">
+            <span class="hand-emoji">👋👋Welcome to AI-Powered BIM Automation!<br>
+                "Conflicts Simplified 🟩 Decisions Amplified"
+        </div>
+
+        <!-- Upload + Run Button -->
+        <div class="upload-section">
+            <label for="file-upload" class="browse-btn">Browse File</label>
+            <input type="file" id="file-upload" accept=".csv,.xlsx">
+            <span id="file-status">No file selected</span>
+
+            <!-- الزر + الـ Checkbox جنب بعض -->
+            <div
+                style="display: flex; align-items: center; justify-content: center; margin-top: 15px; gap: 15px; flex-wrap: wrap;">
+                <button id="run-report" class="run-btn" disabled onclick="checkPasswordAndRun()">🚀🚀Run Quality Control
+                    (Q.C)Report</button>
+
+                <label
+                    style="color: white; font-size: 14px; display: flex; align-items: center; gap: 8px; white-space: nowrap;">
+                    <input type="checkbox" id="enable-fire-check" checked
+                        style="width: 18px; height: 18px; cursor: pointer;">
+                    Active Fire Rating Check
+                </label>
+            </div>
+        </div>
+
+        <!-- ====================== قسم إدخال مرجع Fire Rating ====================== -->
+        <div class="input-section"
+            style="margin-top: 30px; padding: 20px; background: rgba(30, 41, 59, 0.6); border-radius: 15px; display: none;"
+            id="reference-section">
+            <h3 style="color: #60a5fa; margin-bottom: 15px; text-align: center;">"Reference Fire Rating"</h3>
+            <div id="reference-inputs">
+                <div class="reference-row" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="text" placeholder="EX: W01"
+                        style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: white;">
+                    <input type="text" placeholder="EX: 60Min"
+                        style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: white;">
+                    <button onclick="removeReferenceRow(this)"
+                        style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer;">Delete</button>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="addReferenceRow()"
+                    style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 0 5px;">
+                    Adding Wall Type
+                </button>
+                <button onclick="saveReference()"
+                    style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 0 5px;">
+                    Save Reference
+                </button>
+            </div>
+            <p id="reference-status" style="margin-top: 10px; color: #60a5fa; text-align: center;"></p>
+        </div>
+
+        <!-- Export PDF Button -->
+        <button id="export-pdf" class="run-btn" style="background:#8b5cf6; margin-top:15px;">
+            Export Report as PDF
+        </button>
+
+        <div class="footer">
+            Created by: Ahmed Yehia BIM Development
+        </div>
+
+        <!-- Result Report -->
+        <div id="result-container" class="animated-section" style="display: none;">
+            <h2>Result Report</h2>
+            <div id="qa-results"></div>
+        </div>
+
+        <!-- Project Summary -->
+        <section class="summary-section animated-section" style="display: none;">
+            <h2>Project Summary</h2>
+            <div class="cards">
+
+                <!-- 1. Total Element Type -->
+                <div class="card cyan">
+                    <span id="total-element-type">0</span>
+                    <span id="total-element-type-percentage">0%</span>
+                    <br>Total Element Type
+                </div>
+
+                <!--2. Assigned Materials -->
+                <div class="card green" id="assigned-materials-card">
+                    <span id="assigned-materials">0</span>
+                    <span id="assigned-material-percentage">0%</span>
+                    <br>Total Elements Assigned Materials
+                </div>
+
+                <!-- 3. Missing Materials -->
+                <div class="card red" id="missing-materials-card">
+                    <span id="missing-materials">0</span>
+                    <span id="missing-material-percentage">0%</span>
+                    <br>Total Elements Empty Structural Materials
+                </div>
+
+                <!--4. Assigned Fire Rating -->
+                <div class="card blue" id="assigned-fire-card">
+                    <span id="assigned-fire-rating">0</span>
+                    <span id="assigned-fire-percentage">0%</span>
+                    <br>Total Elements Assigned Fire Rating
+                </div>
+
+                <!-- 5.Missing Fire Rating (Differences) -->
+                <div class="card yellow" id="missing-fire-card">
+                    <span id="missing-fire-rating">0</span>
+                    <span id="missing-fire-percentage">0%</span>
+                    <br>Total Elements Fire Rating (Differences)
+                </div>
+
+                <!-- 6.Empty Fire Rating -->
+                <div class="card" id="empty-fire-card"> <!-- أزل class="orange" لو موجود -->
+                    <span id="empty-fire-rating">0</span>
+                    <span id="empty-fire-percentage">0%</span>
+                    <br>Total Elements Empty Fire Rating
+                </div>
+                <!-- 7.Corrected (Matched) -->
+                <div class="card teal" id="correct-fire-card">
+                    <span id="correct-fire-rating">0</span>
+                    <span id="correct-fire-percentage">0%</span>
+                    <br>Total Corrected Elements Fire Rating
+                </div>
+
+                <!-- 8. Resolution % -->
+                <div class="card purple">
+                    <span id="resolution">0%</span><br>Resolution %
+                </div>
+            </div>
+        </section>
+
+        <!-- Result Report Analysis -->
+        <section class="matrix-section animated-section" style="display: none;">
+            <h2>Result Report Analysis</h2>
+
+            <!-- فلتر ذكي فوق الجدول -->
+            <div style="margin: 20px 0; text-align: center;">
+                <label for="result-filter" style="color: #60a5fa; font-weight: bold; margin-right: 10px;">Filter
+                    Results:</label>
+                <select id="result-filter" onchange="applyFilter()"
+                    style="padding: 10px 15px; border-radius: 10px; background: #1e293b; color: white; border: 2px solid #3b82f6; font-size: 1em;">
+                    <option value="all">All Results</option>
+                    <option value="total element assigned-materials">Total Elements Assigned Materials</option>
+                    <option value="missing-material">Empty Structural Materials</option>
+                    <option value="total element assigned-fire-rating">Total Elements Assigned Fire Rating</option>
+                    <option value="missing-firerating">(Differences) Element Fire Rating </option>
+                    <option value="empty-firerating">Element Empty Fire Rating</option>
+                    <option value="correct-firerating">Corrected Element Fire Rating (Matched)</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table id="clash-table">
+                    <thead>
+                        <tr>
+                            <th>TYPE NAME</th>
+                            <th>Element Id</th>
+                            <th>Structural Material</th>
+                            <th>Fire Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clash-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- كل الـ JS في ملف واحد -->
+    <script src="script.js"></script>
+</body>
+
+</html>
