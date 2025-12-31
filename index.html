@@ -10,6 +10,7 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf-autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
@@ -74,9 +75,38 @@
         </div>
 
         <!-- Export PDF Button -->
-        <button id="export-pdf" class="run-btn" style="background:#8b5cf6; margin-top:15px;">
-            Export Report as PDF
-        </button>
+        <div class="export-dropdown" id="export-section"
+            style="position: relative; display: inline-block; margin-top: 15px; display: none;">
+            <button id="export-btn" class="run-btn" style="background:#8b5cf6; padding: 14px 40px;">
+                Export Report ▼
+            </button>
+            <div id="export-menu" class="dropdown-content"
+                style="display: none; position: absolute; background: #1e293b; min-width: 220px; box-shadow: 0 8px 16px rgba(0,0,0,0.6); z-index: 10; border-radius: 10px; overflow: hidden; right: 0;">
+                <a href="#" id="export-pdf-link"
+                    style="display: block; padding: 12px 20px; color: white; text-decoration: none; border-bottom: 1px solid #333;">Export
+                    as PDF (Full Report)</a>
+                <a href="#" id="export-excel-link"
+                    style="display: block; padding: 12px 20px; color: white; text-decoration: none; border-bottom: 1px solid #333;">Export
+                    as Excel (Table Only)</a>
+                <a href="#" id="export-csv-link"
+                    style="display: block; padding: 12px 20px; color: white; text-decoration: none;">Export as CSV
+                    (Table Only)</a>
+            </div>
+        </div>
+
+        <script>
+            // Dropdown toggle
+            document.querySelector('.export-dropdown').addEventListener('click', function (e) {
+                const dropdown = this.querySelector('.dropdown-content');
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                e.stopPropagation();
+            });
+
+            // إغلاق الـ dropdown لما تضغط برا
+            document.addEventListener('click', function () {
+                document.querySelectorAll('.dropdown-content').forEach(d => d.style.display = 'none');
+            });
+        </script>
 
         <div class="footer">
             Created by: Ahmed Yehia BIM Development

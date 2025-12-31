@@ -148,50 +148,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ====================== EXPORT TO PDF ======================
-    exportBtn.addEventListener('click', function () {
+    document.getElementById('export-pdf').addEventListener('click', function () {
         const button = this;
         button.disabled = true;
         button.textContent = 'Processing conversion ...';
 
-        setTimeout(() => {
-            html2canvas(document.querySelector('.container'), {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#0f0f1e',
-                logging: false,
-                width: document.querySelector('.container').scrollWidth + 100,
-                height: document.querySelector('.container').scrollHeight + 300
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210;
-                const pageHeight = 295;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                let heightLeft = imgHeight;
-                let position = 0;
+        const isFiltered = document.getElementById('result-filter').value !== 'all';  // لو فلتر مفعل
 
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        // إخفاء الأزرار
+        document.getElementById('run-report').style.visibility = 'hidden';
+        document.getElementById('export-pdf').style.visibility = 'hidden';
+
+        html2canvas(document.querySelector('.container'), {
+            scale: 1.5,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#0f0f1e',
+            logging: false,
+            scrollX: 0,
+            scrollY: -window.scrollY,
+            windowWidth: document.documentElement.scrollWidth,
+            windowHeight: document.documentElement.scrollHeight
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+
+            const imgWidth = 210;
+            const pageHeight = 295;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
                 heightLeft -= pageHeight;
+            }
 
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
+            pdf.save(isFiltered ? 'BIM_QC_Report_Filtered.pdf' : 'BIM_QC_Report.pdf');
 
-                pdf.save('BIM-Model-(QC)-Report.pdf');
-                button.disabled = false;
-                button.textContent = 'Export Report as PDF';
-            }).catch(err => {
-                console.error(err);
-                alert('Failed to export PDF. Please try again.');
-                button.disabled = false;
-                button.textContent = 'Export Report as PDF';
-            });
-        }, 800);
+            // إرجاع الأزرار
+            document.getElementById('run-report').style.visibility = 'visible';
+            document.getElementById('export-pdf').style.visibility = 'visible';
+            button.disabled = false;
+            button.textContent = 'Export Report as PDF';
+        }).catch(err => {
+            console.error('Failed to export PDF. Please try again.', err);
+            alert('Failed to export PDF. Please try again.');
+            button.disabled = false;
+            button.textContent = 'Export Report as PDF';
+        });
     });
 
     // ====================== تحليل البيانات ======================
@@ -475,8 +486,118 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => el.classList.add('visible'), 100 + i * 300);
             }
         });
+        // إظهار زر Export بعد ظهور النتايج
+        const exportSection = document.getElementById('export-section');
+        if (exportSection) {
+            exportSection.style.display = 'inline-block';
+        }
     }
 });
+
+// ====================== EXPORT FUNCTIONS ======================
+// Export as PDF (الريبورت كامل)
+function exportToPDF() {
+    const button = document.querySelector('.export-dropdown > .run-btn') || document.getElementById('export-pdf');
+    button.textContent = 'Processing conversion ...';
+    button.disabled = true;
+
+    // إخفاء القائمة المنسدلة قبل التصوير
+    const menu = document.getElementById('export-menu');
+    if (menu) menu.style.display = 'none';
+
+    html2canvas(document.querySelector('.container'), {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#0f0f1e',
+        scrollX: 0,
+        scrollY: -window.scrollY
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/jpeg', 0.9);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= 295;
+
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+            heightLeft -= 295;
+        }
+
+        pdf.save('BIM_QC_Report_Full.pdf');
+        button.textContent = 'Export Report ▼';
+        button.disabled = false;
+    }).catch(err => {
+        console.error(err);
+        alert('Failed to export PDF. Please try again');
+        button.textContent = 'Export Report ▼';
+        button.disabled = false;
+    });
+}
+
+// Export as Excel (الجدول فقط - مع الفلتر)
+function exportToExcel() {
+    const table = document.getElementById('clash-table');
+    const wb = XLSX.utils.table_to_book(table, { sheet: "QC Report" });
+    XLSX.writeFile(wb, 'BIM_QC_Report_Table.xlsx');
+}
+
+// Export as CSV (الجدول فقط - مع الفلتر)
+function exportToCSV() {
+    let csv = [];
+    const rows = document.querySelectorAll('#clash-table tr');
+    rows.forEach(row => {
+        let rowData = [];
+        row.querySelectorAll('th, td').forEach(cell => {
+            rowData.push(`"${cell.innerText.trim().replace(/"/g, '""')}"`);
+        });
+        csv.push(rowData.join(','));
+    });
+    const csvContent = csv.join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'BIM_QC_Report_Table.csv';
+    link.click();
+}
+// ====================== DROPDOWN EXPORT CONTROL ======================
+
+// فتح وإغلاق المنيو
+document.getElementById('export-btn').addEventListener('click', function (e) {
+    const menu = document.getElementById('export-menu');
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    e.stopPropagation();
+});
+
+// إغلاق المنيو لما تضغط برا
+document.addEventListener('click', function () {
+    const menu = document.getElementById('export-menu');
+    if (menu) menu.style.display = 'none';
+});
+
+// ربط الخيارات بالدوال
+document.getElementById('export-pdf-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    exportToPDF();
+});
+
+document.getElementById('export-excel-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    exportToExcel();
+});
+
+document.getElementById('export-csv-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    exportToCSV();
+});
+
 // === حماية زر Run بكلمة سر ===
 function checkPasswordAndRun() {
     const PASSWORD = "123"; // غيّرها للي تحبه
